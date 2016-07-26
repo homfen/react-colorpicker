@@ -1,0 +1,29 @@
+{
+  "name": "react-input-colorpicker",
+  "version": "1.0.0",
+  "description": "react-colorpicker with input box using rc-color-picker and antd.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/homfen/react-colorpicker.git"
+  },
+  "keywords": [
+    "react",
+    "colorpicker"
+  ],
+  "author": "homfen@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/homfen/react-colorpicker/issues"
+  },
+  "homepage": "https://github.com/homfen/react-colorpicker#readme",
+  "dependencies": {
+    "antd": "^1.6.5",
+    "colr": "^1.2.2",
+    "rc-color-picker": "^1.1.0",
+    "react": "^15.2.1"
+  }
+}

@@ -26,7 +26,7 @@ export default class ColorPickr extends Component {
         this.state.label = this.props.label
         this.state.mode = this.props.mode || 'RGB'
         this.state.textMode = this.state.mode
-        this.state.value = this.colorFormat(this.state.textMode)
+        this.state.value = this.colorFormat(color, alpha, this.state.textMode)
         this.state.onChange = this.props.onChange
     }
     getColor(color, alpha) {
@@ -42,21 +42,22 @@ export default class ColorPickr extends Component {
             hsl
         }
     }
-    colorFormat(type) {
+    colorFormat(hexColor, alpha, type) {
+        let colorObj = this.getColor(hexColor, alpha)
         switch (type) {
             case 'HEX':
-                return this.state.color
+                return colorObj.color
             case 'RGB':
-                return `rgb(${this.state.rgb.r}, ${this.state.rgb.g}, ${this.state.rgb.b})`
+                return `rgb(${colorObj.rgb.r}, ${colorObj.rgb.g}, ${colorObj.rgb.b})`
             case 'RGBA':
-                let alpha = this.state.alpha / 100
-                return `rgba(${this.state.rgb.r}, ${this.state.rgb.g}, ${this.state.rgb.b}, ${alpha})`
+                let alpha = colorObj.alpha / 100
+                return `rgba(${colorObj.rgb.r}, ${colorObj.rgb.g}, ${colorObj.rgb.b}, ${alpha})`
             case 'HSB':
-                return `hsb(${this.state.hsv.h}, ${this.state.hsv.s}, ${this.state.hsv.v})`
+                return `hsb(${colorObj.hsv.h}, ${colorObj.hsv.s}, ${colorObj.hsv.v})`
             case 'HSL':
-                return `hsl(${this.state.hsl.h}, ${this.state.hsl.s}, ${this.state.hsl.l})`
+                return `hsl(${colorObj.hsl.h}, ${colorObj.hsl.s}, ${colorObj.hsl.l})`
             default:
-                return this.state.color
+                return colorObj.color
         }
     }
     onColorChange(colors) {
@@ -64,7 +65,7 @@ export default class ColorPickr extends Component {
             let color = this.getColor(colors.color, colors.alpha)
             let value
             if (color.alpha === 100) {
-                value = color.color
+                value = this.colorFormat(color.color, 100, this.state.textMode)
             }
             else {
                 let alpha = color.alpha / 100
@@ -83,7 +84,7 @@ export default class ColorPickr extends Component {
             let len = keys.length
             let textMode = keys[(keys.indexOf(this.state.textMode) + 1) % len]
             let mode = colorMode[textMode]
-            let value = this.colorFormat(textMode)
+            let value = this.colorFormat(this.state.color, 100, textMode)
             this.setState({value, textMode, mode})
         }
     }
@@ -140,7 +141,9 @@ export default class ColorPickr extends Component {
                         size='small'
                         value={this.state.value}
                         onClick={this.onTextClick.bind(this)}
-                        onChange={this.onTextChange.bind(this)} />
+                        onChange={this.onTextChange.bind(this)}
+                        title='Shift + Click to change color format'
+                    />
                     <span>
                         <ColorPicker
                             color={this.state.color}

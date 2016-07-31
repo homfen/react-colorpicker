@@ -1,20 +1,26 @@
-var path = require('path');
 var webpack = require('webpack');
+var path = require('path');
+
 module.exports = {
     entry: [
-        'webpack-dev-server/client?http://127.0.0.1:8080',
+        'webpack-dev-server/client?http://127.0.0.1:3000',
         'webpack/hot/only-dev-server',
-        './app/main.js'
+        './app/js/main'
     ],
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: __dirname + '/assets/',
         publicPath: '/assets/',
         filename: 'bundle.js'
     },
     resolve: {
-        modulesDirectories: [path.resolve(__dirname, 'node_modules')],
+        modulesDirectories: [
+            'node_modules'
+        ],
         extensions: ['', '.js', '.jsx']
     },
+    plugins: [
+        new webpack.HotModuleReplacementPlugin()
+    ],
     module: {
         loaders: [
             {
@@ -22,16 +28,11 @@ module.exports = {
                 loader: 'style!css!less'
             },
             {
-                test: /\.jsx?$/,
-                exclude: /node_modules/,
+                test: /\.js$/,
                 loaders: [
-                    'react-hot',
                     'babel?cacheDirectory=true,presets[]=es2015,presets[]=stage-0,presets[]=react,plugins[]=transform-decorators-legacy'
-                ],
+                ]
             }
         ]
-    },
-    plugins: [
-          new webpack.HotModuleReplacementPlugin()
-    ]
+    }
 };

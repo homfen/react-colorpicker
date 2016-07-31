@@ -1,7 +1,7 @@
-import '../css/main.less'
+import '../css/main.less';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ColorPicker from 'react-input-colorpicker/ColorPickr';
+import ColorPicker from 'react-input-colorpicker';
 
 function changeHandler(colors) {
     console.log(colors);

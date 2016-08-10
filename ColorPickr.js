@@ -9,23 +9,24 @@ import Colr from 'colr'
 import {Input} from 'antd'
 
 let colr = new Colr()
-let colorMode = {
+const colorMode = {
     HEX: 'RGB',
     RGB: 'RGB',
     RGBA: 'RGB',
     HSB: 'HSB', // HSB === HSV
     HSL: 'HSL'
 }
+const defaultColor = '#ff0000'
 
 export default class ColorPickr extends Component {
     constructor(props) {
         super(props)
-        let color = this.props.color || '#ff0000'
+        let color = this.props.color || defaultColor
         let alpha = this.props.alpha || 100
         this.state = this.getColor(color, alpha)
         this.state.label = this.props.label
-        this.state.mode = this.props.mode || 'RGB'
-        this.state.textMode = this.state.mode
+        this.state.textMode = this.props.mode || 'HEX'
+        this.state.mode = colorMode[this.state.mode]
         this.state.value = this.colorFormat(color, alpha, this.state.textMode)
         this.state.onChange = this.props.onChange
     }
@@ -91,41 +92,101 @@ export default class ColorPickr extends Component {
     onTextChange(event) {
         let originValue = event.target.value;
         let value = originValue.replace(/\s/g, '')
+        let colorObj = this.getColorFromStr(value)
+        if (colorObj) {
+            let {color, alpha, textMode} = colorObj
+            let rgb = color.toRgbObject()
+            let hsv = color.toHsvObject()
+            let hsl = color.toHslObject()
+            this.setState({
+                color: color.toHex(),
+                alpha: alpha || 100,
+                rgb,
+                hsv,
+                hsl,
+                textMode,
+                mode: colorMode[textMode],
+                value: originValue
+            })
+        }
+        else {
+            this.setState({value: originValue})
+        }
+    }
+
+    getColorFromStr(colorStr) {
         let regHex = /^#[0-9a-f]{3}|[0-9a-f]{6}$/i
         let regRgb = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         let regRgba = /^rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),(0(\.\d+)?|1(\.0)?)\)$/i
         let regHsv = /^hsv\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         let regHsl = /^hsl\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
-        if (regHex.test(value)) {
-            this.setState({color: value})
+        if (regHex.test(colorStr)) {
+            return {color: colr.fromHex(colorStr), alpha: 100, textMode: 'HEX'}
+        }
+
+        let matches
+        let alpha
+        let color
+        let textMode
+        if (matches = colorStr.match(regRgb)) {
+            color = colr.fromRgbArray(matches.slice(1, 4).map(n => +n))
+            textMode = 'RGB'
+        }
+        else if (matches = colorStr.match(regRgba)) {
+            color = colr.fromRgbArray(matches.slice(1, 4).map(n => +n))
+            alpha = parseInt(matches[4] * 100, 10)
+            textMode = 'RGBA'
+        }
+        else if (matches = colorStr.match(regHsv)) {
+            color = colr.fromHsvArray(matches.slice(1, 4).map(n => +n))
+            textMode = 'HSB'
+        }
+        else if (matches = colorStr.match(regHsl)) {
+            color = colr.fromHslArray(matches.slice(1, 4).map(n => +n))
+            textMode = 'HSL'
+        }
+        if (matches) {
+            return {color, alpha, textMode}
+        }
+        return null
+    }
+
+    componentWillReceiveProps({color, alpha: propAlpha, mode}) {
+        if (!color || color === this.state.value) {
+            if (propAlpha != null && propAlpha !== this.state.alpha) {
+                this.setState({alpha: propAlpha})
+            }
+            if (mode && mode !== this.state.textMode) {
+                this.setState({textMode: mode, mode: colorMode[mode]})
+            }
+            return
+        }
+        let originValue = color
+        let value = originValue.replace(/\s/g, '')
+        let colorObj = this.getColorFromStr(value)
+        if (colorObj) {
+            let {color, alpha, textMode} = colorObj
+            let rgb = color.toRgbObject()
+            let hsv = color.toHsvObject()
+            let hsl = color.toHslObject()
+            alpha = propAlpha || alpha || 100
+            textMode = alpha === 100 ? (mode || textMode) : 'RGBA'
+            this.setState({
+                color: color.toHex(),
+                alpha,
+                rgb,
+                hsv,
+                hsl,
+                textMode,
+                mode: colorMode[textMode],
+                value: originValue
+            })
         }
         else {
-            let matches
-            let alpha
-            if (matches = value.match(regRgb)) {
-                colr = colr.fromRgbArray(matches.slice(1, 4).map(n => +n))
-            }
-            else if (matches = value.match(regRgba)) {
-                colr = colr.fromRgbArray(matches.slice(1, 4).map(n => +n))
-                alpha = parseInt(matches[4] * 100, 10)
-            }
-            else if (matches = value.match(regHsv)) {
-                colr = colr.fromHsvArray(matches.slice(1, 4).map(n => +n))
-            }
-            else if (matches = value.match(regHsl)) {
-                colr = colr.fromHslArray(matches.slice(1, 4).map(n => +n))
-            }
-            if (matches) {
-                if (alpha != null) {
-                    this.setState({color: colr.toHex(), alpha})
-                }
-                else {
-                    this.setState({color: colr.toHex()})
-                }
-            }
+            this.setState({value: originValue})
         }
-        this.setState({value: originValue})
     }
+
     render() {
         let label = this.state.label
             ? this.state.label

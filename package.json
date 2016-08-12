@@ -1,6 +1,6 @@
 {
   "name": "react-input-colorpicker",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "react-colorpicker with input box using rc-color-picker and antd.",
   "main": "index.js",
   "scripts": {

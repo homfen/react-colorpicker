@@ -19,6 +19,7 @@ const colorMode = {
 const defaultColor = '#ff0000'
 
 export default class ColorPickr extends Component {
+
     constructor(props) {
         super(props)
         let color = this.props.color || defaultColor
@@ -28,8 +29,8 @@ export default class ColorPickr extends Component {
         this.state.textMode = this.props.mode || 'HEX'
         this.state.mode = colorMode[this.state.mode]
         this.state.value = this.colorFormat(color, alpha, this.state.textMode)
-        this.state.onChange = this.props.onChange
     }
+
     getColor(color, alpha) {
         colr = colr.fromHex(color)
         let rgb = colr.toRgbObject()
@@ -76,7 +77,7 @@ export default class ColorPickr extends Component {
                 ...color,
                 value
             })
-            this.state.onChange && this.state.onChange(color)
+            this.props.onChange && this.props.onChange(color)
         }
     }
     onTextClick(event) {
@@ -98,16 +99,20 @@ export default class ColorPickr extends Component {
             let rgb = color.toRgbObject()
             let hsv = color.toHsvObject()
             let hsl = color.toHslObject()
-            this.setState({
+            let colors = {
                 color: color.toHex(),
-                alpha: alpha || 100,
+                alpha: alpha || this.state.alpha || 100,
                 rgb,
                 hsv,
-                hsl,
+                hsl
+            }
+            this.setState({
+                ...colors,
                 textMode,
                 mode: colorMode[textMode],
                 value: originValue
             })
+            this.props.onChange && this.props.onChange(colors)
         }
         else {
             this.setState({value: originValue})
@@ -115,13 +120,13 @@ export default class ColorPickr extends Component {
     }
 
     getColorFromStr(colorStr) {
-        let regHex = /^#[0-9a-f]{3}|[0-9a-f]{6}$/i
+        let regHex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
         let regRgb = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         let regRgba = /^rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),(0(\.\d+)?|1(\.0)?)\)$/i
         let regHsv = /^hsv\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         let regHsl = /^hsl\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         if (regHex.test(colorStr)) {
-            return {color: colr.fromHex(colorStr), alpha: 100, textMode: 'HEX'}
+            return {color: colr.fromHex(colorStr), textMode: 'HEX'}
         }
 
         let matches
@@ -151,8 +156,8 @@ export default class ColorPickr extends Component {
         return null
     }
 
-    componentWillReceiveProps({color, alpha: propAlpha, mode}) {
-        if (!color || color === this.state.value) {
+    componentWillReceiveProps({color: propsColor, alpha: propAlpha, mode}) {
+        if (!propsColor || propsColor === this.state.value) {
             if (propAlpha != null && propAlpha !== this.state.alpha) {
                 this.setState({alpha: propAlpha})
             }
@@ -161,30 +166,36 @@ export default class ColorPickr extends Component {
             }
             return
         }
-        let originValue = color
-        let value = originValue.replace(/\s/g, '')
+        let value = propsColor.replace(/\s/g, '')
         let colorObj = this.getColorFromStr(value)
         if (colorObj) {
             let {color, alpha, textMode} = colorObj
             let rgb = color.toRgbObject()
             let hsv = color.toHsvObject()
             let hsl = color.toHslObject()
-            alpha = propAlpha || alpha || 100
+            alpha = propAlpha || alpha
             textMode = alpha === 100 ? (mode || textMode) : 'RGBA'
-            this.setState({
+            let nextState = {
                 color: color.toHex(),
-                alpha,
                 rgb,
                 hsv,
                 hsl,
                 textMode,
-                mode: colorMode[textMode],
-                value: originValue
-            })
+                mode: colorMode[textMode]
+            }
+            if (alpha != null) {
+                nextState.alpha = alpha
+            }
+            this.setState(nextState)
         }
-        else {
-            this.setState({value: originValue})
+    }
+
+    shouldComponentUpdate(nextProps, {color, alpha, textMode, value}) {
+        let {color: stateColor, alpha: stateAlpha, textMode: stateTextMode, value: stateValue} = this.state
+        if (stateColor === color && stateAlpha === alpha && stateTextMode === textMode && value === stateValue) {
+            return false
         }
+        return true
     }
 
     render() {

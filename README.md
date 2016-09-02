@@ -13,10 +13,9 @@ Click the input with the Shift key.
 
 ## Example Usage
 ```javascript
-import './ColorPickr.less';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ColorPicker from './ColorPickr.js';
+import ColorPicker from 'react-input-colorpicker';
 
 function changeHandler(colors) {
     console.log(colors);

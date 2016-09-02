@@ -7,6 +7,7 @@ import React, {Component} from 'react'
 import ColorPicker from 'rc-color-picker'
 import Colr from 'colr'
 import {Input} from 'antd'
+import './ColorPickr.less'
 
 let colr = new Colr()
 const colorMode = {

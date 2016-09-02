@@ -24,6 +24,7 @@ export default class ColorPickr extends Component {
         super(props)
         let color = this.props.color || defaultColor
         let alpha = this.props.alpha || 100
+        this.timer = 0
         this.state = this.getColor(color, alpha)
         this.state.label = this.props.label
         this.state.textMode = this.props.mode || 'HEX'
@@ -63,22 +64,34 @@ export default class ColorPickr extends Component {
         }
     }
     onColorChange(colors) {
-        if (colors.color !== this.state.color || colors.alpha !== this.state.alpha) {
-            let color = this.getColor(colors.color, colors.alpha)
-            let value
-            if (color.alpha === 100) {
-                value = this.colorFormat(color.color, 100, this.state.textMode)
-            }
-            else {
-                let alpha = color.alpha / 100
-                value = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${alpha})`
-            }
-            this.setState({
-                ...color,
-                value
-            })
-            this.props.onChange && this.props.onChange(color)
+        if (this.timer) {
+            clearTimeout(this.timer)
         }
+        this.timer = setTimeout(() => {
+            if (colors.color !== this.state.color || colors.alpha !== this.state.alpha) {
+                let color = this.getColor(colors.color, colors.alpha)
+                let value
+                let textMode = this.state.textMode
+                if (color.alpha === 100) {
+                    value = this.colorFormat(color.color, 100, this.state.textMode)
+                }
+                else {
+                    let alpha = color.alpha / 100
+                    value = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${alpha})`
+                    textMode = 'RGBA'
+                }
+                let state = {
+                    ...color,
+                    value,
+                    textMode
+                }
+                if (textMode === 'HEX') {
+                    state.color = value
+                }
+                this.setState(state)
+                this.props.onChange && this.props.onChange(state)
+            }
+        }, 200)
     }
     onTextClick(event) {
         if (event.shiftKey && this.state.alpha === 100) {
@@ -106,13 +119,16 @@ export default class ColorPickr extends Component {
                 hsv,
                 hsl
             }
+            if (textMode === 'HEX') {
+                colors.color = originValue
+            }
             this.setState({
                 ...colors,
                 textMode,
                 mode: colorMode[textMode],
                 value: originValue
             })
-            this.props.onChange && this.props.onChange(colors)
+            this.props.onChange && this.props.onChange({...colors, value})
         }
         else {
             this.setState({value: originValue})
@@ -169,22 +185,30 @@ export default class ColorPickr extends Component {
         let value = propsColor.replace(/\s/g, '')
         let colorObj = this.getColorFromStr(value)
         if (colorObj) {
-            let {color, alpha, textMode} = colorObj
+            let {color, alpha} = colorObj
             let rgb = color.toRgbObject()
             let hsv = color.toHsvObject()
             let hsl = color.toHslObject()
             alpha = propAlpha || alpha
-            textMode = alpha === 100 ? (mode || textMode) : 'RGBA'
             let nextState = {
                 color: color.toHex(),
                 rgb,
                 hsv,
-                hsl,
-                textMode,
-                mode: colorMode[textMode]
+                hsl
+            }
+            if (mode != null) {
+                nextState.textMode = mode
+                nextState.mode = colorMode[mode]
             }
             if (alpha != null) {
                 nextState.alpha = alpha
+            }
+            if (colorObj.textMode !== 'HEX') {
+                value = this.colorFormat(
+                    nextState.color,
+                    alpha || this.state.alpha,
+                    mode || colorObj.textMode || this.state.textMode)
+                nextState.value = value
             }
             this.setState(nextState)
         }
@@ -203,7 +227,7 @@ export default class ColorPickr extends Component {
             ? this.state.label
             : '';
         return (
-            <div className='ColorPickr'>
+            <div className='property-panel-control ColorPickr'>
                 <span className='title'>
                     {label}
                 </span>

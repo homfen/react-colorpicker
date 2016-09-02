@@ -5,7 +5,7 @@ react-colorpicker with input box using rc-color-picker and antd.
 
 ## Installation
 ```bash
-npm install react-input-colorpicker --save
+npm install react-input-colorpicker react rc-color-picker antd colr --save
 ```
 
 ## Change color format

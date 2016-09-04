@@ -1,7 +1,8 @@
 # react-colorpicker
-react-colorpicker with input box using rc-color-picker and antd.
+react-colorpicker with input box using rc-color-picker and colr.
 
-[Demo](https://homfen.github.io/react-colorpicker)
+## Demo
+[https://homfen.github.io/react-colorpicker](https://homfen.github.io/react-colorpicker)
 
 ## Installation
 ```bash

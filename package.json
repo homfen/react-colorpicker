@@ -32,6 +32,6 @@
   "dependencies": {
     "react": "^15.3.1",
     "react-dom": "^15.1.0",
-    "react-input-colorpicker": "^1.0.8"
+    "react-input-colorpicker": "https://github.com/homfen/react-colorpicker.git"
   }
 }

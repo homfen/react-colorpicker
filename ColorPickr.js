@@ -6,7 +6,6 @@
 import React, {Component} from 'react'
 import ColorPicker from 'rc-color-picker'
 import Colr from 'colr'
-import {Input} from 'antd'
 import './ColorPickr.less'
 
 let colr = new Colr()
@@ -105,7 +104,7 @@ export default class ColorPickr extends Component {
         }
     }
     onTextChange(event) {
-        let originValue = event.target.value;
+        let originValue = event.target.value
         let value = originValue.replace(/\s/g, '')
         let colorObj = this.getColorFromStr(value)
         if (colorObj) {
@@ -226,16 +225,15 @@ export default class ColorPickr extends Component {
     render() {
         let label = this.state.label
             ? this.state.label
-            : '';
+            : ''
         return (
-            <div className='property-panel-control ColorPickr'>
+            <div className='ColorPickr'>
                 <span className='title'>
                     {label}
                 </span>
                 <div className='content'>
-                    <Input
-                        type='text'
-                        size='small'
+                    <input
+                        className='input'
                         value={this.state.value}
                         onClick={this.onTextClick.bind(this)}
                         onChange={this.onTextChange.bind(this)}

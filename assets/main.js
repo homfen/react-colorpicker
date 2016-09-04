@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "aec6549e5dc7b215ede7"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "145eb80340165b219a05"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -22436,7 +22436,6 @@
 	        var alpha = _this.props.alpha || 100;
 	        _this.timer = 0;
 	        _this.state = _this.getColor(color, alpha);
-	        _this.state.label = _this.props.label;
 	        _this.state.textMode = _this.props.mode || 'HEX';
 	        _this.state.mode = colorMode[_this.state.mode];
 	        _this.state.value = _this.colorFormat(color, alpha, _this.state.textMode);
@@ -22658,7 +22657,7 @@
 	            var stateTextMode = _state.textMode;
 	            var stateValue = _state.value;
 
-	            if (stateColor === color && stateAlpha === alpha && stateTextMode === textMode && value === stateValue) {
+	            if (stateColor === color && stateAlpha === alpha && stateTextMode === textMode && value === stateValue && this.props.label === nextProps.label) {
 	                return false;
 	            }
 	            return true;
@@ -22666,15 +22665,15 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var label = this.state.label ? this.state.label : '';
+	            var label = this.props.label ? _react2.default.createElement(
+	                'span',
+	                { className: 'title' },
+	                this.props.label
+	            ) : null;
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'ColorPickr' },
-	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'title' },
-	                    label
-	                ),
+	                label,
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'content' },

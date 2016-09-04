@@ -26,7 +26,6 @@ export default class ColorPickr extends Component {
         let alpha = this.props.alpha || 100
         this.timer = 0
         this.state = this.getColor(color, alpha)
-        this.state.label = this.props.label
         this.state.textMode = this.props.mode || 'HEX'
         this.state.mode = colorMode[this.state.mode]
         this.state.value = this.colorFormat(color, alpha, this.state.textMode)
@@ -216,21 +215,24 @@ export default class ColorPickr extends Component {
 
     shouldComponentUpdate(nextProps, {color, alpha, textMode, value}) {
         let {color: stateColor, alpha: stateAlpha, textMode: stateTextMode, value: stateValue} = this.state
-        if (stateColor === color && stateAlpha === alpha && stateTextMode === textMode && value === stateValue) {
+        if (stateColor === color
+            && stateAlpha === alpha
+            && stateTextMode === textMode
+            && value === stateValue
+            && this.props.label === nextProps.label
+           ) {
             return false
         }
         return true
     }
 
     render() {
-        let label = this.state.label
-            ? this.state.label
-            : ''
+        let label = this.props.label
+            ? (<span className='title'>{this.props.label}</span>)
+            : null
         return (
             <div className='ColorPickr'>
-                <span className='title'>
-                    {label}
-                </span>
+                {label}
                 <div className='content'>
                     <input
                         className='input'

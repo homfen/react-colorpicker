@@ -6,7 +6,7 @@
 import React, {Component} from 'react'
 import ColorPicker from 'rc-color-picker'
 import Colr from 'colr'
-import './ColorPickr.less'
+import {Input} from 'antd'
 
 let colr = new Colr()
 const colorMode = {
@@ -22,13 +22,17 @@ export default class ColorPickr extends Component {
 
     constructor(props) {
         super(props)
-        let color = this.props.color || defaultColor
+        let originalColor = this.props.color || defaultColor
         let alpha = this.props.alpha || 100
+        let colorObj = this.getColorFromStr(originalColor)
+        let color = colorObj.color.toHex()
+        alpha = Math.min(colorObj.alpha, alpha)
         this.timer = 0
         this.state = this.getColor(color, alpha)
-        this.state.textMode = this.props.mode || 'HEX'
+        this.state.label = this.props.label
+        this.state.textMode = colorObj.textMode || this.props.mode || 'HEX'
         this.state.mode = colorMode[this.state.mode]
-        this.state.value = this.colorFormat(color, alpha, this.state.textMode)
+        this.state.value = originalColor
     }
 
     getColor(color, alpha) {
@@ -103,7 +107,7 @@ export default class ColorPickr extends Component {
         }
     }
     onTextChange(event) {
-        let originValue = event.target.value
+        let originValue = event.target.value;
         let value = originValue.replace(/\s/g, '')
         let colorObj = this.getColorFromStr(value)
         if (colorObj) {
@@ -113,7 +117,7 @@ export default class ColorPickr extends Component {
             let hsl = color.toHslObject()
             let colors = {
                 color: color.toHex(),
-                alpha: alpha || this.state.alpha || 100,
+                alpha: Math.min(alpha, this.state.alpha, 100),
                 rgb,
                 hsv,
                 hsl
@@ -135,17 +139,18 @@ export default class ColorPickr extends Component {
     }
 
     getColorFromStr(colorStr) {
+        colorStr = colorStr.replace(/\s/g, '')
         let regHex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
         let regRgb = /^rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         let regRgba = /^rgba\((\d{1,3}),(\d{1,3}),(\d{1,3}),(0(\.\d+)?|1(\.0)?)\)$/i
         let regHsv = /^hsv\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
         let regHsl = /^hsl\((\d{1,3}),(\d{1,3}),(\d{1,3})\)$/i
+        let alpha = 100
         if (regHex.test(colorStr)) {
-            return {color: colr.fromHex(colorStr), textMode: 'HEX'}
+            return {color: colr.fromHex(colorStr), textMode: 'HEX', alpha}
         }
 
         let matches
-        let alpha
         let color
         let textMode
         if (matches = colorStr.match(regRgb)) {
@@ -215,27 +220,25 @@ export default class ColorPickr extends Component {
 
     shouldComponentUpdate(nextProps, {color, alpha, textMode, value}) {
         let {color: stateColor, alpha: stateAlpha, textMode: stateTextMode, value: stateValue} = this.state
-        if (stateColor === color
-            && stateAlpha === alpha
-            && stateTextMode === textMode
-            && value === stateValue
-            && this.props.label === nextProps.label
-           ) {
+        if (stateColor === color && stateAlpha === alpha && stateTextMode === textMode && value === stateValue) {
             return false
         }
         return true
     }
 
     render() {
-        let label = this.props.label
-            ? (<span className='title'>{this.props.label}</span>)
-            : null
+        let label = this.state.label
+            ? this.state.label
+            : '';
         return (
-            <div className='ColorPickr'>
-                {label}
+            <div className='property-panel-control ColorPickr'>
+                <span className='title'>
+                    {label}
+                </span>
                 <div className='content'>
-                    <input
-                        className='input'
+                    <Input
+                        type='text'
+                        size='small'
                         value={this.state.value}
                         onClick={this.onTextClick.bind(this)}
                         onChange={this.onTextChange.bind(this)}

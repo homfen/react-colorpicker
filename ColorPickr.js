@@ -6,7 +6,7 @@
 import React, {Component} from 'react'
 import ColorPicker from 'rc-color-picker'
 import Colr from 'colr'
-import {Input} from 'antd'
+import './ColorPickr.less'
 
 let colr = new Colr()
 const colorMode = {
@@ -236,9 +236,8 @@ export default class ColorPickr extends Component {
                     {label}
                 </span>
                 <div className='content'>
-                    <Input
-                        type='text'
-                        size='small'
+                    <input
+                        className='input'
                         value={this.state.value}
                         onClick={this.onTextClick.bind(this)}
                         onChange={this.onTextChange.bind(this)}
